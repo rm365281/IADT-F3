@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./medical-agent/src/medical_agent"
+    ]
+}
