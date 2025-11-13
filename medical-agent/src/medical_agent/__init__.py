@@ -1,2 +1,3 @@
-def main() -> None:
-    print("Hello from medical-agent!")
+from medical_agent.graph import graph
+
+__all__ = ["graph"]

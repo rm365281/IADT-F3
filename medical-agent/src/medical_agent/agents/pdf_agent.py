@@ -1,7 +1,7 @@
 import logging
 
 from langchain.agents import create_agent
-from vector_store import vector_store
+from vector_stores import vector_store
 from langchain_ollama import ChatOllama
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
