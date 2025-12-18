@@ -46,7 +46,7 @@ async def clinical_react_orchestrator(state: State, runtime: Runtime[Context]) -
         "medical_procedure": response['medical_procedure'],
     }
 
-async def sql_query(state: State, runtime: Runtime[Context]) -> State:
+async def patient_info(state: State, runtime: Runtime[Context]) -> State:
     """
     Worker node: Handles SQL queries for patient data.
     """
@@ -65,7 +65,7 @@ async def sql_query(state: State, runtime: Runtime[Context]) -> State:
 
     return {"patient_data": tool_message.content}
 
-async def vector_search(state: State, runtime: Runtime[Context]) -> State:
+async def procedure_info(state: State, runtime: Runtime[Context]) -> State:
     """
     Worker node: Handles vector DB search for internal medical procedures.
     """
@@ -83,7 +83,7 @@ async def vector_search(state: State, runtime: Runtime[Context]) -> State:
 
     return {"internal_procedures_data": response['messages'][-1].content}
 
-async def disease_model(state: State, runtime: Runtime[Context]) -> State:
+async def disease_info(state: State, runtime: Runtime[Context]) -> State:
     """
     Worker node: Handles disease information queries via LLM.
     """
