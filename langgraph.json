@@ -1,0 +1,9 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./src/react_agent/graph.py:graph",
+    "patient_info_subgraph": "./src/react_agent/patient_info/graph.py:patient_info_subgraph"
+  },
+  "env": ".env"
+}
