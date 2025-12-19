@@ -2,6 +2,12 @@
 
 This guide explains how to fine-tune the [unsloth/Llama-3.2-3B-Instruct](https://huggingface.co/unsloth/llama-3.2-3b-instruct) model using your own medical Q&A data. The process uses Unsloth for efficient LoRA fine-tuning and produces a LoRA adapter that can be merged into a GGUF file for deployment.
 
+## Fine-Tuning Dataset
+
+The model was fine-tuned using Cancer QA data from the [MedQuAD CancerGov_QA dataset](https://github.com/abachaa/MedQuAD/tree/master/1_CancerGov_QA).
+
+---
+
 ## 1. Generate the Training Dataset
 
 First, you need to create the datasets for training. This involves converting your XML Q&A files to JSONL and generating symptom-to-disease pairs.

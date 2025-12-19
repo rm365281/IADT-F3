@@ -1,8 +1,3 @@
-
-<p align="center">
-	<img src="static/medical-agent.png" alt="Medical AI Assistant" width="400"/>
-</p>
-
 # Medical AI Assistant
 
 This project is a Medical AI Assistant designed to provide comprehensive responses to user queries by integrating information from multiple sources:
@@ -17,6 +12,9 @@ The agent can:
 - Provide disease-related information.
 - Combine information from all sources to answer complex user requests within its capabilities.
 
+<p align="center">
+	<img src="static/medical-agent.png" alt="Medical AI Assistant" width="400"/>
+</p>
 
 ## Architecture
 
@@ -35,7 +33,10 @@ The project is built around a **Workflow Parallelization** approach, enabling th
 
 - **Ollama:** Used for LLM inference and management.
 
+- **LM Studio:** Used for Fine Tunned LLM inference and management.
+
 - **Docker Compose:** For containerized deployment and service management.
+
 
 ## Data Sources
 
@@ -43,14 +44,48 @@ The project is built around a **Workflow Parallelization** approach, enabling th
 - **SQL Database:** MySQL for structured patient data.
 - **LLM:** Fine-tuned llama-3.2-3b-instruct-unsloth-bnb-4bit model for disease information and natural language understanding.
 
+
 ## Capabilities
 
 - Intelligent routing and orchestration of user requests.
 - Multi-source data integration for comprehensive answers.
 - Secure handling of patient and medical data.
 
+## Getting Started
+
+1. **Clone the repository**
+2. **Configure environment variables** for database and LLM access.
+3. **Start services** using Docker Compose.
+4. **Interact with the agent** via the provided API or interface.
 
 
+### Required Models
+
+The following models are required to run the agent:
+
+- **ollama/llama3.1:8b** — Used for general agent nodes (LLM)
+- **Groff/tech3_model.gguf** — Fine-tuned for disease information (must be run in LM Studio)
+- **ollama/llama3** — Used for embeddings
+
+#### Downloading Models with Ollama
+
+To download the required models for Ollama, run:
+
+```bash
+ollama pull llama3.1:8b
+ollama pull llama3
+```
+
+#### Running the Fine-Tuned Model
+
+The model [`Groff/tech3_model.gguf`](https://huggingface.co/Groff/tech3_model.gguf) is a fine-tuned LLM for disease information. You must run this model using [LM Studio](https://lmstudio.ai/) and ensure it is accessible to the agent.
+
+## Requirements
+
+- Docker & Docker Compose
+- Access to MongoDB Atlas and MySQL
+- Ollama for LLM management
+- LM Studio
 
 ## Building and Running the Project
 
@@ -94,44 +129,15 @@ docker compose up
 
 Access LangSmith and connect to the LangGraph server running locally at port **8123**.
 
----
 
-## Getting Started
+## Fine-Tuning the Model
 
-1. **Clone the repository**
-2. **Configure environment variables** for database and LLM access.
-3. **Start services** using Docker Compose.
-4. **Interact with the agent** via the provided API or interface.
+To fine-tune the disease information model yourself, follow the detailed instructions in [fine_tuned_model/README.md](fine_tuned_model/README.md). This guide covers:
 
+- Preparing and converting the MedQuAD dataset
+- Generating training data
+- Running the fine-tuning process with Unsloth
+- Merging LoRA adapters and exporting to GGUF format
 
-## Required Models
+Refer to that file for step-by-step commands and requirements.
 
-The following models are required to run the agent:
-
-- **ollama/llama3.1:8b** — Used for general agent nodes (LLM)
-- **Groff/tech3_model.gguf** — Fine-tuned for disease information (must be run in LM Studio)
-- **ollama/llama3** — Used for embeddings
-
-### Downloading Models with Ollama
-
-To download the required models for Ollama, run:
-
-```bash
-ollama pull llama3.1:8b
-ollama pull llama3
-```
-
-### Running the Fine-Tuned Model
-
-The model `Groff/tech3_model.gguf` is a fine-tuned LLM for disease information. You must run this model using [LM Studio](https://lmstudio.ai/) and ensure it is accessible to the agent.
-
----
-
-## Requirements
-- Docker & Docker Compose
-- Access to MongoDB Atlas and MySQL
-- Ollama for LLM management
-
-## License
-
-See LICENSE for details.
