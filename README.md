@@ -51,13 +51,19 @@ The project is built around a **Workflow Parallelization** approach, enabling th
 - Multi-source data integration for comprehensive answers.
 - Secure handling of patient and medical data.
 
+## Requirements
+
+- Docker & Docker Compose
+- Access to MongoDB Atlas and MySQL
+- Ollama for LLM management
+- LM Studio
+
 ## Getting Started
 
 1. **Clone the repository**
 2. **Configure environment variables** for database and LLM access.
 3. **Start services** using Docker Compose.
 4. **Interact with the agent** via the provided API or interface.
-
 
 ### Required Models
 
@@ -80,16 +86,7 @@ ollama pull llama3
 
 The model [`Groff/tech3_model.gguf`](https://huggingface.co/Groff/tech3_model.gguf) is a fine-tuned LLM for disease information. You must run this model using [LM Studio](https://lmstudio.ai/) and ensure it is accessible to the agent.
 
-## Requirements
-
-- Docker & Docker Compose
-- Access to MongoDB Atlas and MySQL
-- Ollama for LLM management
-- LM Studio
-
 ## Building and Running the Project
-
-
 
 ### 0.1. Load Medical Procedure Embeddings into MongoDB Atlas
 
@@ -129,6 +126,23 @@ docker compose up
 
 Access LangSmith and connect to the LangGraph server running locally at port **8123**.
 
+## Running Locally
+
+To run this project locally (outside Docker), you need to have [uv](https://github.com/astral-sh/uv) installed.
+
+1. Install dependencies:
+
+	```bash
+	uv sync
+	```
+
+2. Start the development server:
+
+	```bash
+	uv run langgraph dev
+	```
+
+This will launch the agent locally for development and testing.
 
 ## Fine-Tuning the Model
 
