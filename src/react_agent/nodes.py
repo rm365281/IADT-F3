@@ -2,6 +2,7 @@ import asyncio
 import dis
 import logging
 from math import log
+from os import system
 from typing import Dict, List
 import uuid
 
@@ -44,6 +45,39 @@ async def clinical_react_orchestrator(state: State, runtime: Runtime[Context]) -
         "disease_name": response['disease_name'],
         "condition": response['condition'],
         "medical_procedure": response['medical_procedure'],
+    }
+
+def scope_checker(state: State) -> State:
+    """
+    Check if the user query is within the scope of the agent's capabilities.
+    """
+    return {
+        "in_scope": state.get('require_patient_data', False) or
+                    state.get('require_internal_procedures', False) or
+                    state.get('require_disease_info', False)
+    }
+
+def dummy_node(state: State) -> State:
+    """
+    A dummy node that does nothing.
+    """
+    return state
+    
+def out_of_scope_warn(state: State) -> State:
+    """
+    Handle out-of-scope queries.
+    """
+    
+    system_message = """
+    I'm sorry, but your request is outside the scope of my capabilities, and I am unable to assist with it.\n
+    My functions are limited to:
+     - Providing information and assistance related to clinical and medical topics based on the data I have access to.
+     - Answering questions about diseases, symptoms, and medical procedures within my knowledge base.
+     - Search patient information from the internal database when provided with valid identifiers.
+    """
+
+    return {
+        "messages": [AIMessage(content=system_message)]
     }
 
 async def patient_info(state: State, runtime: Runtime[Context]) -> State:

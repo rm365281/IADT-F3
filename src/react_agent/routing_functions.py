@@ -5,6 +5,9 @@ from langgraph.graph import END
 from react_agent.state import State
 
 
+def in_scope(state: State) -> bool:
+    return state.get('in_scope', False)
+
 def requires_patient_data(state: State) -> bool:
     return state['require_patient_data']
 

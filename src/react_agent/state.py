@@ -95,3 +95,6 @@ class State(InputState):
     Feedback on the agent's responses.
     This can be used to evaluate the quality of the agent's advice and improve future interactions.
     """
+
+    in_scope: bool = field(default=True)
+    """Indicates whether the user query is within the agent's scope."""
