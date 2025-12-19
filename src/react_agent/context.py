@@ -113,6 +113,13 @@ class Context:
         },
     )
 
+    mysql_connection_string: str = field(
+        default=os.environ.get('MYSQL_URI', 'mysql+pymysql://root:root@localhost:3306/hospital_db'),
+        metadata={
+            "description": "The MySQL connection string for the SQL database."
+        },
+    )
+
     def __post_init__(self) -> None:
         """Fetch env vars for attributes that were not passed as args."""
         for f in fields(self):

@@ -85,7 +85,7 @@ async def patient_info(state: State, runtime: Runtime[Context]) -> State:
     Worker node: Handles SQL queries for patient data.
     """
     llm = load_chat_model(runtime.context.model)
-    db = await asyncio.to_thread(SQLDatabase.from_uri, database_uri='mysql+pymysql://root:root@localhost:3306/hospital_db')
+    db = await asyncio.to_thread(SQLDatabase.from_uri, database_uri=runtime.context.mysql_connection_string)
 
     tool_call = ToolCall(
         name="sql_db_query",

@@ -3,7 +3,7 @@
 Works with a chat model with tool calling support.
 """
 
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph, START
 
 from react_agent.context import Context
 from react_agent.nodes import aggregator, clinical_react_orchestrator, disease_info, dummy_node, evaluator, final_answer, out_of_scope_warn, out_of_scope_warn, patient_info, procedure_info, scope_checker
