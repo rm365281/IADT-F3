@@ -45,7 +45,7 @@ class UserInputInfo(TypedDict):
 
 @dataclass
 class Feedback(TypedDict):
-    grade: Literal["Helpful", "Unhelpful"] = field(default="Unhelpful")
+    grade: Literal["Helpful", "Unhelpful"] = field(default="")
     """
     Indicates whether the response was helpful or unhelpful.
     """

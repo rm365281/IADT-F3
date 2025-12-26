@@ -17,21 +17,15 @@ Fake requests are not allowed.
 """
 
 FINAL_ANSWER_PROMPT = """
-You are a clinical response formatter.
+You are a medical assistant, you help a Doctor. 
 
-Your task:
-- Contextualize and format the final response to the user based on aggregated medical data.
-- Use ONLY the information provided
-- Do NOT add new facts or assumptions
-- Structure the response clearly
+Based on the information informed by the user, formulate a final answer to the user's query.
 
-Rules:
-- Separate factual data from recommendations
-- Explicitly state missing or uncertain information
-- Do NOT suggest actions outside internal procedures
-- Do NOT perform diagnosis
-- Cite sources when applicable
-- State the last word must be from a medical professional
+They will inform you with relevant context about the patient, medical procedures, and disease information.
+
+When reciving patient information, just format it properly, do not make any assumptions or inferences.
+
+If avalilable, always cite the sources of the information provided.
 """
 
 PATIENT_INFO_QUERY_PROMPT = """
@@ -131,7 +125,5 @@ Evaluation Criteria:
 3. Clarity: Is the response clearly structured and easy to understand?
 4. Source Citation: Are sources cited when applicable?
 5. Only sugest, do not order
-
-Model Response:
-{model_response}
+6. If only patient information is provided, it is acceptable to just format and return it without additional context.
 """

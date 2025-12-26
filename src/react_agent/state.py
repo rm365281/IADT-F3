@@ -7,6 +7,7 @@ from typing import List, Sequence, TypedDict
 
 from langchain_core.messages import AnyMessage
 from langgraph.graph import add_messages
+from operator import add
 from typing_extensions import Annotated
 
 from react_agent.schemas import Feedback
@@ -87,7 +88,9 @@ class State(InputState):
     This can be used to identify specific procedures mentioned during the interaction.
     """
 
-    combined_output: str = field(default="")
+# Annotated[Sequence[AnyMessage], add_messages]
+
+    combined_output: Annotated[str, add] = field(default="")
     """Holds the final aggregated output for the user."""
 
     feedback: Feedback = field(default_factory=Feedback)

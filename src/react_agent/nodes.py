@@ -1,14 +1,11 @@
 import asyncio
-import dis
+import datetime
 import logging
-from math import log
-from os import system
 from typing import Dict, List
-import uuid
 
-from langchain_community.tools.sql_database.tool import QuerySQLDatabaseTool
 from langchain_community.utilities.sql_database import SQLDatabase
-from langchain_core.messages import AIMessage, SystemMessage, ToolCall, HumanMessage
+from langchain_core.messages import AIMessage, SystemMessage, HumanMessage
+from langgraph.types import Overwrite
 from langgraph.runtime import Runtime
 from langchain.agents import create_agent
 
@@ -84,20 +81,65 @@ async def patient_info(state: State, runtime: Runtime[Context]) -> State:
     """
     Worker node: Handles SQL queries for patient data.
     """
-    llm = load_chat_model(runtime.context.model)
     db = await asyncio.to_thread(SQLDatabase.from_uri, database_uri=runtime.context.mysql_connection_string)
+    engine = db._engine
 
-    tool_call = ToolCall(
-        name="sql_db_query",
-        args={"query": "SELECT * FROM patients WHERE full_name LIKE '%{}%';".format(state['patient_name'])},
-        id=uuid.uuid4().hex,
-        type="tool_call"
-    )
+    rows = await asyncio.to_thread(find_patients_by_name, engine, state['patient_name'])
 
-    run_query_tool = QuerySQLDatabaseTool(db=db, llm=llm)
-    tool_message = await run_query_tool.ainvoke(tool_call)
+    patient_context = await asyncio.to_thread(patients_to_context, rows)
+    return {"patient_data": patient_context}
 
-    return {"patient_data": tool_message.content}
+from sqlalchemy import text
+
+def find_patients_by_name(engine, patient_name: str):
+    query = text("""
+        SELECT
+            id,
+            full_name,
+            birth_date,
+            gender,
+            created_at,
+            updated_at
+        FROM patients
+        WHERE full_name LIKE :name
+    """)
+
+    with engine.connect() as connection:
+        result = connection.execute(
+            query,
+            {"name": f"%{patient_name}%"}
+        )
+        return result.fetchall()
+
+def patients_to_context(rows) -> str:
+    if not rows:
+        return "No patient records were found."
+
+    lines = []
+
+    for (
+        patient_id,
+        full_name,
+        birth_date,
+        gender,
+        created_at,
+        updated_at,
+    ) in rows:
+
+        lines.append(
+            f"""
+- ID: {patient_id}
+- Name: {full_name}
+- Birth date: {birth_date}
+- Gender: {gender.capitalize()}
+- Created at: {created_at:%Y-%m-%d %H:%M}
+- Updated at: {updated_at:%Y-%m-%d %H:%M}
+- Age: {(datetime.datetime.now().year - birth_date.year) if birth_date else 'Unknown'}
+""".strip()
+        )
+
+    return "\n\n".join(lines)
+
 
 async def procedure_info(state: State, runtime: Runtime[Context]) -> State:
     """
@@ -152,47 +194,49 @@ async def aggregator(state: State) -> State:
     internal_procedures = state.get('internal_procedures_data', "")
     disease_info = state.get('disease_info_data', "")
 
-    combined_output = f"Patient Details:\n{patient_details}\n\nInternal Medical Procedures:\n{internal_procedures}\n\nDisease Information:\n{disease_info}"
+    combined_output = await asyncio.to_thread(lambda: f"Patient Details:\n{patient_details}\n\nInternal Medical Procedures:\n{internal_procedures}\n\nDisease Information:\n{disease_info}")
 
-    return {"combined_output": combined_output}
+    return {"combined_output": Overwrite(combined_output)}
 
-async def final_answer(state: State, runtime: Runtime[Context]) -> dict:
+async def wait(state: State) -> State:
+    """
+    A placeholder await function to satisfy async requirements.
+    """
+    return state
+
+def final_answer(state: State, runtime: Runtime[Context]) -> dict:
     """
     Worker node: Formats and returns the final answer using the LLM.
     """
 
+    logger.info("Generating final answer...")
+    logger.info(f"Combined output: {state['combined_output']}")
+
     llm = load_chat_model(runtime.context.model)
-    response = await llm.ainvoke([
+    response = llm.invoke([
         SystemMessage(content=runtime.context.final_answer_prompt),
-        HumanMessage(content=state["combined_output"])
+        HumanMessage(content=state["combined_output"]),
+        *state['messages']
     ])
     return {
         "messages": [response]
     }
 
-async def evaluator(state: State, runtime: Runtime[Context]):
+def evaluator(state: State, runtime: Runtime[Context]):
     """
     Evaluate model responses for quality and relevance.
     """
 
-    # Check for required fields and provide defaults if missing
-    user_input_info = state.get('user_input_info', {})
-    summary = user_input_info.get('summary', "")
-    intent = user_input_info.get('intent', "")
     messages = state.get('messages', [])
     model_response = messages[-1].content if messages and hasattr(messages[-1], 'content') else ""
 
     print("Evaluating model response...", model_response)
 
-    system_prompt = runtime.context.evaluation_prompt.format(
-        summary=summary,
-        model_response=model_response,
-        intent=intent,
-    )
+    system_prompt = runtime.context.evaluation_prompt
 
-    model = await asyncio.to_thread(load_chat_model, runtime.context.model)
-    structured_model = await asyncio.to_thread(model.with_structured_output, Feedback)
-    feedback = await structured_model.ainvoke(
+    model = load_chat_model(runtime.context.model)
+    structured_model = model.with_structured_output(Feedback)
+    feedback = structured_model.invoke(
         [{"role": "system", "content": system_prompt}, *messages]
     )
     print("Evaluator feedback:", feedback)

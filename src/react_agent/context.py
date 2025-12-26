@@ -107,7 +107,7 @@ class Context:
     )
 
     open_ai_url: str = field(
-        default="http://192.168.0.15:1234/v1",
+        default="http://172.30.208.1:1234/v1",
         metadata={
             "description": "The base URL for the OpenAI-compatible API."
         },
